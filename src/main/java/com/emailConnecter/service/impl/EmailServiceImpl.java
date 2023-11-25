@@ -3,6 +3,7 @@ package com.emailConnecter.service.impl;
 
 import com.emailConnecter.request.EmailRequest;
 import com.emailConnecter.response.BaseResponse;
+import com.emailConnecter.response.email.EmailResponse;
 import com.emailConnecter.service.EmailService;
 import com.emailConnecter.utility.ResponseUtility;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ public class EmailServiceImpl implements EmailService {
     public BaseResponse sendMail(EmailRequest emailRequest) {
 
         BaseResponse baseResponse = null;
+        EmailResponse emailResponse = new EmailResponse();
         try {
 
             Properties properties = System.getProperties();
@@ -62,11 +64,13 @@ public class EmailServiceImpl implements EmailService {
 
             Transport.send(mimeMessage);
             logger.info("Send Success.....");
-            baseResponse = ResponseUtility.getBaseResponse(HttpStatus.OK, "Email send successfully.");
+            emailResponse.setStatus("Success");
+            baseResponse = ResponseUtility.getBaseResponse(HttpStatus.OK, emailResponse);
 
         } catch (Exception e) {
             logger.error("Exception Occurred at the time sending email with probable cause- ", e);
-            baseResponse = ResponseUtility.getBaseResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            emailResponse.setStatus("Failed");
+            baseResponse = ResponseUtility.getBaseResponse(HttpStatus.INTERNAL_SERVER_ERROR, emailResponse);
         }
         return baseResponse;
 
