@@ -21,7 +21,12 @@ public class EmailController {
 
     @GetMapping("/welcome")
     public String welcome() {
-        return "This means email connection application is Up and running";
+        return "   ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥\n" +
+                "  ♥                                                 ♥\n" +
+                " ♥                  Welcome to                       ♥\n" +
+                " ♥               Email Connector                     ♥\n" +
+                "  ♥                                                 ♥\n" +
+                "   ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥\n";
     }
 
     @PostMapping("/send-mail")
