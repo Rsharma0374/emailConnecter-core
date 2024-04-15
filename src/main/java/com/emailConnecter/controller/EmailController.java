@@ -1,6 +1,7 @@
 package com.emailConnecter.controller;
 
 import com.emailConnecter.request.EmailRequest;
+import com.emailConnecter.request.PortfolioMessageRequest;
 import com.emailConnecter.response.BaseResponse;
 import com.emailConnecter.service.EmailService;
 import org.slf4j.Logger;
@@ -33,5 +34,13 @@ public class EmailController {
     public ResponseEntity<BaseResponse> sendEmail(
             @RequestBody EmailRequest emailRequest) {
         logger.debug("send-mail controller started");
-        return new ResponseEntity<>(emailService.sendMail(emailRequest), HttpStatus.OK);    }
+        return new ResponseEntity<>(emailService.sendMail(emailRequest), HttpStatus.OK);
+    }
+
+    @PostMapping("/send-portfolio-message")
+    public ResponseEntity<BaseResponse> sendEmail(
+            @RequestBody PortfolioMessageRequest portfolioMessageRequest) {
+        logger.debug("send-portfolio-message controller started");
+        return new ResponseEntity<>(emailService.sendPortfolioQuery(portfolioMessageRequest), HttpStatus.OK);
+    }
 }
