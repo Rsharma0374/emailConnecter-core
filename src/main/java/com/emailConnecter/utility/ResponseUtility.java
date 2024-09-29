@@ -8,10 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
+import java.util.Properties;
 
 public class ResponseUtility {
 
@@ -63,6 +66,17 @@ public class ResponseUtility {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public static Properties fetchProperties(String userAuthPropertiesPath) {
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream(userAuthPropertiesPath));
+            return properties;
+        } catch (IOException e) {
+            logger.error("Exception occurred while getting user auth config with probable cause - ", e);
+            return null;
+        }
     }
 }
 

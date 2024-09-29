@@ -21,17 +21,24 @@ public class EmailServiceImpl implements EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
-    @Value("${spring.mail.host}")
-    private String host;
+    private static final String EMAIL_CONNECTOR_PROPERTIES_PATH = "/opt/configs/emailConnector.properties";
 
-    @Value("${spring.mail.port}")
-    private String port;
+    private static String host = "";
+    private static String port = "";
+    private static  String from = "";
+    private static String password = "";
 
-    @Value("${sprig.mail.username}")
-    private String from;
+    static {
+        Properties properties = ResponseUtility.fetchProperties(EMAIL_CONNECTOR_PROPERTIES_PATH);
+        if (null != properties) {
+            host = properties.getProperty("HOST");
+            port = properties.getProperty("PORT");
+            from = properties.getProperty("USERNAME");
+            password = properties.getProperty("PASSWORD");
+        }
+    }
 
-    @Value("${sprig.mail.password}")
-    private String password;
+
 
     @Override
     public BaseResponse sendMail(EmailRequest emailRequest) {
