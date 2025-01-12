@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.*;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -77,6 +78,17 @@ public class ResponseUtility {
             logger.error("Exception occurred while getting user auth config with probable cause - ", e);
             return null;
         }
+    }
+
+    public static long dayEndExpiryTime() {
+        // Current time
+        LocalDateTime now = LocalDateTime.now();
+
+        // End of the day (11:59:59 PM)
+        LocalDateTime endOfDay = now.toLocalDate().atTime(LocalTime.MAX);
+
+        // Calculate duration in seconds
+        return Duration.between(now, endOfDay).getSeconds();
     }
 }
 

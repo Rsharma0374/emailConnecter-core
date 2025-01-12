@@ -9,4 +9,6 @@ public interface EmailService {
     BaseResponse sendMail(EmailRequest emailRequest);
 
     BaseResponse sendPortfolioQuery(PortfolioMessageRequest portfolioMessageRequest);
+
+    BaseResponse getCurrentDayStatistics();
 }

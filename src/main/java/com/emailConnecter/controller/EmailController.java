@@ -43,4 +43,10 @@ public class EmailController {
         logger.debug("send-portfolio-message controller started");
         return new ResponseEntity<>(emailService.sendPortfolioQuery(portfolioMessageRequest), HttpStatus.OK);
     }
+
+    @GetMapping("/get-current-day-statistics")
+    public ResponseEntity<BaseResponse> getCurrentDayStatistics() {
+        logger.debug("get-current-day-statistics controller started");
+        return new ResponseEntity<>(emailService.getCurrentDayStatistics(), HttpStatus.OK);
+    }
 }
