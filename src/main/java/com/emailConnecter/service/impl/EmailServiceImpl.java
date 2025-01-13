@@ -79,6 +79,8 @@ public class EmailServiceImpl implements EmailService {
                     CacheConfig.CACHE.put(BREVO_EMAIL_COUNT, count);
                     return count;
                 }
+            } else {
+                return 0;
             }
         }
         return -1;
