@@ -1,11 +1,11 @@
 <configuration>
 <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!-- Main log file -->
-    <file>/opt/logs/emailConnector.log</file>
+    <file>/opt/logs/emailConnector/emailConnector.log</file>
 
     <!-- Rolling log file naming pattern -->
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-        <fileNamePattern>/opt/logs/emailConnector.%d{yyyy-MM-dd}.log</fileNamePattern>
+        <fileNamePattern>/opt/logs/emailConnector/emailConnector.%d{yyyy-MM-dd}.log</fileNamePattern>
         <!-- Keep logs for 10 days -->
         <maxHistory>10</maxHistory>
     </rollingPolicy>
