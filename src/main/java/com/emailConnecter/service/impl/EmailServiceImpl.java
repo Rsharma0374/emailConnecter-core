@@ -9,6 +9,7 @@ import com.emailConnecter.response.BaseResponse;
 import com.emailConnecter.response.email.EmailResponse;
 import com.emailConnecter.service.EmailService;
 import com.emailConnecter.utility.ResponseUtility;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
@@ -69,18 +70,20 @@ public class EmailServiceImpl implements EmailService {
 
     private int getBrevoEmailCountByApi() {
         String brevoStatistics = getCurrentDayStatisticsBrevo();
-        JSONObject jsonObject = new JSONObject(brevoStatistics);
-        if (jsonObject.has("reports")) {
-            JSONArray reportArray = jsonObject.getJSONArray("reports");
-            if (!reportArray.isEmpty()) {
-                JSONObject report = reportArray.getJSONObject(0);
-                if (report.has("requests")) {
-                    int count = report.getInt("requests");
-                    CacheConfig.CACHE.put(BREVO_EMAIL_COUNT, count);
-                    return count;
+        if (StringUtils.isNotBlank(brevoStatistics)) {
+            JSONObject jsonObject = new JSONObject(brevoStatistics);
+            if (jsonObject.has("reports")) {
+                JSONArray reportArray = jsonObject.getJSONArray("reports");
+                if (!reportArray.isEmpty()) {
+                    JSONObject report = reportArray.getJSONObject(0);
+                    if (report.has("requests")) {
+                        int count = report.getInt("requests");
+                        CacheConfig.CACHE.put(BREVO_EMAIL_COUNT, count);
+                        return count;
+                    }
+                } else {
+                    return 0;
                 }
-            } else {
-                return 0;
             }
         }
         return -1;
@@ -233,9 +236,16 @@ public class EmailServiceImpl implements EmailService {
     }
 
     private String getCurrentDateYYYYMMDD() {
-        Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        return formatter.format(date);
+        // Get current date and time in IST (or your local timezone)
+        Calendar calendar = Calendar.getInstance();
+        Date date = calendar.getTime();
+
+        // Create a SimpleDateFormat object for GMT
+        SimpleDateFormat gmtFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        gmtFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        // Format the date in GMT
+        return gmtFormatter.format(date);
     }
 
 }
