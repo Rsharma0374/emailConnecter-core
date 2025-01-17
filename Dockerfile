@@ -47,7 +47,7 @@ COPY --from=build /app/target/*.jar emailConnector.jar
 RUN mkdir -p /opt/logs && chmod 755 /opt/logs
 
 # Expose the port your app will run on
-EXPOSE 10001
+EXPOSE 10002
 
 # Define the command to run the app
 ENTRYPOINT ["java", "-jar", "emailConnector.jar"]
