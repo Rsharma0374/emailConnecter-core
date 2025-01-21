@@ -25,7 +25,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Step 2: Setup NGINX and Java Runtime
-FROM openjdk:17-alpine
+FROM amazoncorretto:17
 WORKDIR /app
 
 # Install Nginx
