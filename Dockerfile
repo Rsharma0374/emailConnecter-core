@@ -25,12 +25,17 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Step 2: Setup NGINX and Java Runtime
-FROM amazoncorretto:17
+FROM eclipse-temurin:17
 WORKDIR /app
 
-# Install Nginx
-RUN apt update && apt install -y nginx && mkdir -p /run/nginx
-
+# Install Nginx using apt (Debian) or apk (Alpine)
+RUN if command -v apt > /dev/null; then \
+      apt update && apt install -y nginx; \
+    elif command -v apk > /dev/null; then \
+      apk update && apk add nginx; \
+    else \
+      echo "Unsupported base image"; exit 1; \
+    fi
 # Copy Java application
 COPY --from=build /app/target/*.jar /app/app.jar
 
