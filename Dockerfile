@@ -46,5 +46,5 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80 10002
 
 # Start both Java app and Nginx
-CMD (java -jar /app/app.jar &) && nginx -g 'daemon off;'
+CMD java -jar /app/app.jar > /opt/logs/emailConnector/emailConnector.log 2>&1 & nginx -g 'daemon off;'
 
