@@ -29,7 +29,7 @@ FROM amazoncorretto:17
 WORKDIR /app
 
 # Install Nginx
-RUN apk update && apk add nginx && mkdir -p /run/nginx
+RUN apt update && apt install -y nginx && mkdir -p /run/nginx
 
 # Copy Java application
 COPY --from=build /app/target/*.jar /app/app.jar
