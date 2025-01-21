@@ -22,7 +22,7 @@ FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -P prod
 
 # Step 2: Setup NGINX and Java Runtime
 FROM eclipse-temurin:17
