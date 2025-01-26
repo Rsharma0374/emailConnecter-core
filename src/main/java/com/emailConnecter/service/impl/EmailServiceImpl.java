@@ -175,7 +175,22 @@ public class EmailServiceImpl implements EmailService {
             emailRequest.setMessage(message);
             emailRequest.setTo(toEmail);
             emailRequest.setSubject(subject);
-            sendEmailGuardianService(emailRequest, emailResponse);
+
+
+            int brevoEmailCount = 0;
+            Object brevoEmailCountConfig = CacheConfig.get(BREVO_EMAIL_COUNT);
+            if (brevoEmailCountConfig instanceof Integer) {
+                brevoEmailCount = (Integer) brevoEmailCountConfig;
+            } else {
+                brevoEmailCount = getBrevoEmailCountByApi();
+            }
+            if (brevoEmailCount >=0 && brevoEmailCount <= 250) { //send email by brevo
+                sendEmailBrevo(emailRequest, emailResponse, brevoEmailCount);
+            } else {
+                sendEmailGuardianService(emailRequest, emailResponse);
+            }
+
+
             baseResponse = ResponseUtility.getBaseResponse(HttpStatus.OK, emailResponse);
 
         } catch (Exception e) {
