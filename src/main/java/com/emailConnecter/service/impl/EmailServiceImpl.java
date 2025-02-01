@@ -47,6 +47,11 @@ public class EmailServiceImpl implements EmailService {
         try {
             int brevoEmailCount = 0;
             Object brevoEmailCountConfig = CacheConfig.get(BREVO_EMAIL_COUNT);
+            if (brevoEmailCountConfig == null) {
+                Properties properties = ResponseUtility.fetchProperties(EMAIL_CONNECTOR_PROPERTIES_PATH);
+                putNewConfig(properties);
+                brevoEmailCountConfig = CacheConfig.get(BREVO_EMAIL_COUNT);
+            }
             if (brevoEmailCountConfig instanceof Integer) {
                 brevoEmailCount = (Integer) brevoEmailCountConfig;
             } else {
@@ -66,6 +71,31 @@ public class EmailServiceImpl implements EmailService {
         }
         return baseResponse;
 
+    }
+
+    private void putNewConfig(Properties properties) {
+        if (null != properties) {
+            Map<String, String> guardianSmtp = new HashMap<>();
+            Map<String, String> brevoSmtp = new HashMap<>();
+
+            //Guardian Service SMTP
+            guardianSmtp.put("host", properties.getProperty(Constant.GSERVICE_HOST));
+            guardianSmtp.put("port", properties.getProperty(Constant.GSERVICE_PORT));
+            guardianSmtp.put("username", properties.getProperty(Constant.GSERVICE_USERNAME));
+            guardianSmtp.put("password", properties.getProperty(Constant.GSERVICE_PASSWORD));
+
+            //Brevo service SMTP
+            brevoSmtp.put("host", properties.getProperty(Constant.BREVO_HOST));
+            brevoSmtp.put("port", properties.getProperty(Constant.BREVO_PORT));
+            brevoSmtp.put("username", properties.getProperty(Constant.BREVO_USERNAME));
+            brevoSmtp.put("password", properties.getProperty(Constant.BREVO_PASSWORD));
+
+            long expiryTime = ResponseUtility.dayEndExpiryTime();
+            CacheConfig.put("guardianSmtp", guardianSmtp, expiryTime);
+            CacheConfig.put("brevoSmtp", brevoSmtp, expiryTime);
+            CacheConfig.CACHE.put(Constant.FROM, properties.getProperty(Constant.FROM));
+            CacheConfig.CACHE.put(Constant.BREVO_API_KEY, properties.getProperty(Constant.BREVO_API_KEY));
+        }
     }
 
     private int getBrevoEmailCountByApi() {
@@ -92,6 +122,10 @@ public class EmailServiceImpl implements EmailService {
     private void sendEmailBrevo(EmailRequest emailRequest, EmailResponse emailResponse, int brevoEmailCount) throws MessagingException {
 
         Map<String, String> brevoSmtp = (Map<String, String>) CacheConfig.get("brevoSmtp");
+        if (null == brevoSmtp || brevoSmtp.isEmpty()) {
+            sendEmailGuardianService(emailRequest, emailResponse);
+            return;
+        }
         String host = brevoSmtp.get("host");
         String port = brevoSmtp.get("port");
         String username = brevoSmtp.get("username");
