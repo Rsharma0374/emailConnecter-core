@@ -12,7 +12,7 @@ logging:
 eureka:
   client:
     service-url:
-      defaultZone: https://eureka.guardianservices.in/
+      defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
