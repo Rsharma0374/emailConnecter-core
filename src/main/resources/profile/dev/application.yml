@@ -1,2 +1,15 @@
 server:
   port: 10002
+
+spring:
+  application:
+    name: email-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
