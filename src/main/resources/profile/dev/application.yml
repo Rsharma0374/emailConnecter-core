@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: email-service
+    name: EMAIL-SERVICE
 
 eureka:
   client:
@@ -13,3 +13,4 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
+    hostname: localhost
