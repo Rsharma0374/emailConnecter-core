@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: email-service
+    name: EMAIL-SERVICE
 
 logging:
   file:
