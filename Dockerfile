@@ -25,4 +25,4 @@ RUN mkdir -p /opt/logs && chmod 755 /opt/logs
 EXPOSE 10002
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
