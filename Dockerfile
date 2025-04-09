@@ -9,7 +9,7 @@ COPY pom.xml .
 COPY src ./src
 
 # Build the application
-RUN mvn clean package -DskipTests -Pprod
+RUN mvn clean package -Pprod
 
 # Stage 2: Run the application
 FROM openjdk:17-jdk-slim
