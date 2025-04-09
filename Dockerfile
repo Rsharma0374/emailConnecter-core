@@ -16,7 +16,7 @@ FROM openjdk:17-jdk-slim
 
 
 # Copy Java application
-COPY --from=build /app/target/*.jar /app/app.jar
+COPY --from=build /build/target/*.jar /app/app.jar
 
 # Create logs directory
 RUN mkdir -p /opt/logs && chmod 755 /opt/logs
