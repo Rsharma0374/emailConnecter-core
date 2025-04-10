@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: emailConnector
+  name: email-connector
 spec:
   selector:
     matchLabels:
-      app: emailConnector
+      app: email-connector
   replicas: 3
   template:
     metadata:
       labels:
-        app: emailConnector
+        app: email-connector
     spec:
       containers:
         - name: emailConnector
