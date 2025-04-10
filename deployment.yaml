@@ -13,7 +13,7 @@ spec:
         app: email-connector
     spec:
       containers:
-        - name: emailConnector
+        - name: email-connector
           image: email-connector:latest
           imagePullPolicy: IfNotPresent
           ports:
