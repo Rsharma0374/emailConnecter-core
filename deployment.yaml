@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emailConnector
+spec:
+  selector:
+    matchLabels:
+      app: emailConnector
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: emailConnector
+    spec:
+      containers:
+        - name: emailConnector
+          image: email-connector:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 10002
