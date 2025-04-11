@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: email-connector
-          image: email-connector:latest
+          image: rsharma0374/email-connector:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 10002
