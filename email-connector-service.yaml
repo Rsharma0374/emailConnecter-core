@@ -9,4 +9,5 @@ spec:
     - protocol: "TCP"
       port: 10002
       targetPort: 10002
+      nodePort: 10002
   type: NodePort
