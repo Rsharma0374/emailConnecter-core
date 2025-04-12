@@ -6,9 +6,9 @@ spring:
   application:
     name: EMAIL-SERVICE
 
-logging:
-  file:
-    name:/opt/logs/emailConnector/emailConnector.log
+#logging:
+#  file:
+#    name: /opt/logs/emailConnector/emailConnector.log
 
 eureka:
   client:
