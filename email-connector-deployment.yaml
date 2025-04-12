@@ -17,4 +17,4 @@ spec:
           image: rsharma0374/email-connector:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 10002
+            - containerPort: 30080
