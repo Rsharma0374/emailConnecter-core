@@ -17,10 +17,10 @@ spec:
           hostPath:
             path: /var/lib/jenkins/logs/emailConnector
             type: DirectoryOrCreate
-        - name: config-volume
-          hostPath:
-            path: /opt/configs
-            type: Directory
+#        - name: config-volume
+#          hostPath:
+#            path: /opt/configs
+#            type: Directory
       containers:
         - name: email-connector
           image: rsharma0374/email-connector:latest
@@ -30,9 +30,9 @@ spec:
           volumeMounts:
             - name: log-volume
               mountPath: /logs
-            - name: config-volume
-              mountPath: /opt/configs
-              readOnly: true
+#            - name: config-volume
+#              mountPath: /opt/configs
+#              readOnly: true
           env:
             - name: SPRING_APPLICATION_JSON
               value: '{
