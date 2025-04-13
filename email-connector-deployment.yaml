@@ -12,12 +12,20 @@ spec:
       labels:
         app: email-connector
     spec:
+      volumes:
+        - name: log-volume
+          hostPath:
+            path: /var/lib/jenkins/logs/emailConnector
+            type: DirectoryOrCreate
       containers:
         - name: email-connector
           image: rsharma0374/email-connector:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 10002
+          volumeMounts:
+            - name: log-volume
+              mountPath: /logs
           env:
             - name: SPRING_APPLICATION_JSON
               value: '{
