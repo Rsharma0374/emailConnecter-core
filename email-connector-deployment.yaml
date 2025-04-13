@@ -17,6 +17,10 @@ spec:
           hostPath:
             path: /var/lib/jenkins/logs/emailConnector
             type: DirectoryOrCreate
+        - name: config-volume
+          hostPath:
+            path: /opt/configs
+            type: Directory
       containers:
         - name: email-connector
           image: rsharma0374/email-connector:latest
