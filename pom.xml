@@ -14,7 +14,7 @@
 	<name>emailConnecter-core</name>
 	<description>Spring Boot Project for Email Connecter</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>21</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
