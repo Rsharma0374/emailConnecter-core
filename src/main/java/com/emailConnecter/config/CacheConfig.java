@@ -14,7 +14,6 @@ public class CacheConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(CacheConfig.class);
     public static Map<String , Object> CACHE = new ConcurrentHashMap<>();
-    private static final String EMAIL_CONNECTOR_PROPERTIES_PATH = "/opt/configs/emailConnector.properties";
 
     private static final Map<String, String> guardianSmtp = new HashMap<>();
     private static final Map<String, String> brevoSmtp = new HashMap<>();
@@ -23,28 +22,32 @@ public class CacheConfig {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     static {
-        Properties properties = ResponseUtility.fetchProperties(EMAIL_CONNECTOR_PROPERTIES_PATH);
-        if (null != properties) {
+        try {
+            Map properties = InfisicalConfig.fetchConfig("Email");
+            if (properties != null) {
+                //Guardian Service SMTP
+                guardianSmtp.put("host", properties.get(Constant.GSERVICE_HOST).toString());
+                guardianSmtp.put("port", properties.get(Constant.GSERVICE_PORT).toString());
+                guardianSmtp.put("username", properties.get(Constant.GSERVICE_USERNAME).toString());
+                guardianSmtp.put("password", properties.get(Constant.GSERVICE_PASSWORD).toString());
 
-            //Guardian Service SMTP
-            guardianSmtp.put("host", properties.getProperty(Constant.GSERVICE_HOST));
-            guardianSmtp.put("port", properties.getProperty(Constant.GSERVICE_PORT));
-            guardianSmtp.put("username", properties.getProperty(Constant.GSERVICE_USERNAME));
-            guardianSmtp.put("password", properties.getProperty(Constant.GSERVICE_PASSWORD));
+                //Brevo service SMTP
+                brevoSmtp.put("host", properties.get(Constant.BREVO_HOST).toString());
+                brevoSmtp.put("port", properties.get(Constant.BREVO_PORT).toString());
+                brevoSmtp.put("username", properties.get(Constant.BREVO_USERNAME).toString());
+                brevoSmtp.put("password", properties.get(Constant.BREVO_PASSWORD).toString());
 
-            //Brevo service SMTP
-            brevoSmtp.put("host", properties.getProperty(Constant.BREVO_HOST));
-            brevoSmtp.put("port", properties.getProperty(Constant.BREVO_PORT));
-            brevoSmtp.put("username", properties.getProperty(Constant.BREVO_USERNAME));
-            brevoSmtp.put("password", properties.getProperty(Constant.BREVO_PASSWORD));
-
-            long expiryTime = ResponseUtility.dayEndExpiryTime();
-            CacheConfig.put("guardianSmtp", guardianSmtp, expiryTime);
-            CacheConfig.put("brevoSmtp", brevoSmtp, expiryTime);
-            CacheConfig.CACHE.put(Constant.FROM, properties.getProperty(Constant.FROM));
-            CacheConfig.CACHE.put(Constant.BREVO_API_KEY, properties.getProperty(Constant.BREVO_API_KEY));
+                long expiryTime = ResponseUtility.dayEndExpiryTime();
+                CacheConfig.put("guardianSmtp", guardianSmtp, expiryTime);
+                CacheConfig.put("brevoSmtp", brevoSmtp, expiryTime);
+                CacheConfig.CACHE.put(Constant.FROM, properties.get(Constant.FROM).toString());
+                CacheConfig.CACHE.put(Constant.BREVO_API_KEY, properties.get(Constant.BREVO_API_KEY).toString());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
+
 
     /**
      * Puts a value in the cache with an optional expiration time.

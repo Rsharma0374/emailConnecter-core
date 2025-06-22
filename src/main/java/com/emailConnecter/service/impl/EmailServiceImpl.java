@@ -2,6 +2,7 @@ package com.emailConnecter.service.impl;
 
 
 import com.emailConnecter.config.CacheConfig;
+import com.emailConnecter.config.InfisicalConfig;
 import com.emailConnecter.constants.Constant;
 import com.emailConnecter.request.EmailRequest;
 import com.emailConnecter.request.PortfolioMessageRequest;
@@ -34,7 +35,6 @@ public class EmailServiceImpl implements EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
-    private static final String EMAIL_CONNECTOR_PROPERTIES_PATH = "/opt/configs/emailConnector.properties";
     public static final String BREVO_EMAIL_COUNT = "brevoEmailCount";
     private static final String API_URL = "https://api.brevo.com/v3/smtp/statistics/reports";
 
@@ -48,8 +48,32 @@ public class EmailServiceImpl implements EmailService {
             int brevoEmailCount = 0;
             Object brevoEmailCountConfig = CacheConfig.get(BREVO_EMAIL_COUNT);
             if (brevoEmailCountConfig == null) {
-                Properties properties = ResponseUtility.fetchProperties(EMAIL_CONNECTOR_PROPERTIES_PATH);
-                putNewConfig(properties);
+                Map properties = InfisicalConfig.fetchConfig("Email");
+
+
+                if (properties != null) {
+                    Map<String, String> guardianSmtp = new HashMap<>();
+                    Map<String, String> brevoSmtp = new HashMap<>();
+
+                    //Guardian Service SMTP
+                    guardianSmtp.put("host", properties.get(Constant.GSERVICE_HOST).toString());
+                    guardianSmtp.put("port", properties.get(Constant.GSERVICE_PORT).toString());
+                    guardianSmtp.put("username", properties.get(Constant.GSERVICE_USERNAME).toString());
+                    guardianSmtp.put("password", properties.get(Constant.GSERVICE_PASSWORD).toString());
+
+                    //Brevo service SMTP
+                    brevoSmtp.put("host", properties.get(Constant.BREVO_HOST).toString());
+                    brevoSmtp.put("port", properties.get(Constant.BREVO_PORT).toString());
+                    brevoSmtp.put("username", properties.get(Constant.BREVO_USERNAME).toString());
+                    brevoSmtp.put("password", properties.get(Constant.BREVO_PASSWORD).toString());
+
+                    long expiryTime = ResponseUtility.dayEndExpiryTime();
+                    CacheConfig.put("guardianSmtp", guardianSmtp, expiryTime);
+                    CacheConfig.put("brevoSmtp", brevoSmtp, expiryTime);
+                    CacheConfig.CACHE.put(Constant.FROM, properties.get(Constant.FROM).toString());
+                    CacheConfig.CACHE.put(Constant.BREVO_API_KEY, properties.get(Constant.BREVO_API_KEY).toString());
+                }
+
                 brevoEmailCountConfig = CacheConfig.get(BREVO_EMAIL_COUNT);
             }
             if (brevoEmailCountConfig instanceof Integer) {
@@ -71,31 +95,6 @@ public class EmailServiceImpl implements EmailService {
         }
         return baseResponse;
 
-    }
-
-    private void putNewConfig(Properties properties) {
-        if (null != properties) {
-            Map<String, String> guardianSmtp = new HashMap<>();
-            Map<String, String> brevoSmtp = new HashMap<>();
-
-            //Guardian Service SMTP
-            guardianSmtp.put("host", properties.getProperty(Constant.GSERVICE_HOST));
-            guardianSmtp.put("port", properties.getProperty(Constant.GSERVICE_PORT));
-            guardianSmtp.put("username", properties.getProperty(Constant.GSERVICE_USERNAME));
-            guardianSmtp.put("password", properties.getProperty(Constant.GSERVICE_PASSWORD));
-
-            //Brevo service SMTP
-            brevoSmtp.put("host", properties.getProperty(Constant.BREVO_HOST));
-            brevoSmtp.put("port", properties.getProperty(Constant.BREVO_PORT));
-            brevoSmtp.put("username", properties.getProperty(Constant.BREVO_USERNAME));
-            brevoSmtp.put("password", properties.getProperty(Constant.BREVO_PASSWORD));
-
-            long expiryTime = ResponseUtility.dayEndExpiryTime();
-            CacheConfig.put("guardianSmtp", guardianSmtp, expiryTime);
-            CacheConfig.put("brevoSmtp", brevoSmtp, expiryTime);
-            CacheConfig.CACHE.put(Constant.FROM, properties.getProperty(Constant.FROM));
-            CacheConfig.CACHE.put(Constant.BREVO_API_KEY, properties.getProperty(Constant.BREVO_API_KEY));
-        }
     }
 
     private int getBrevoEmailCountByApi() {
