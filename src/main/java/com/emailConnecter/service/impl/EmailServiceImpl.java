@@ -171,8 +171,11 @@ public class EmailServiceImpl implements EmailService {
 
         properties.put("mail.smtp.host", host);
         properties.put("mail.smtp.port", port);
-        properties.put("mail.smtp.ssl.enable", "true");
         properties.put("mail.smtp.auth", "true");
+
+        properties.put("mail.smtp.ssl.enable", "true");          // ✅ Enable implicit SSL
+        properties.put("mail.smtp.starttls.enable", "false");    // ✅ Disable STARTTLS
+        properties.put("mail.transport.protocol", "smtp");
 
         Session session = Session.getInstance(properties, new Authenticator() {
             @Override
