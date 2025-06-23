@@ -48,13 +48,13 @@ public class EmailServiceImpl implements EmailService {
         try {
             int brevoEmailCount = 0;
             Object brevoEmailCountConfig = CacheConfig.get(BREVO_EMAIL_COUNT);
-            logger.warn("Brevo count config: {}", brevoEmailCountConfig.toString());
+            logger.warn("Brevo count config: {}", brevoEmailCountConfig);
             if (brevoEmailCountConfig == null) {
                 logger.warn("Brevo count config is null");
                 addingCacheConfig();
 
                 brevoEmailCountConfig = CacheConfig.get(BREVO_EMAIL_COUNT);
-                logger.warn("Brevo email count config: {}", brevoEmailCountConfig.toString());
+                logger.warn("Brevo email count config: {}", brevoEmailCountConfig);
             }
             if (brevoEmailCountConfig instanceof Integer) {
                 brevoEmailCount = (Integer) brevoEmailCountConfig;
