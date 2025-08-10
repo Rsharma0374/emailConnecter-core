@@ -2,6 +2,9 @@
 #FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 
+# Verify Java & Maven versions
+RUN java -version && mvn -version
+
 WORKDIR /app
 
 # Cache dependencies first (improves build speed)
