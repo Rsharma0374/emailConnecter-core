@@ -22,6 +22,7 @@ public class EmailController {
 
     @GetMapping("/welcome")
     public String welcome() {
+        logger.warn("Welcome to Email Connector");
         return "   ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥\n" +
                 "  ♥                                                 ♥\n" +
                 " ♥                  Welcome to                       ♥\n" +
