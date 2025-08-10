@@ -1,28 +1,39 @@
+# Build Stage (Maven + Java 21)
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 
-# Step 1: Build the Java Maven application
-FROM maven:3.9.9-eclipse-temurin-17 AS build
-# Set the working directory
-WORKDIR /build
+WORKDIR /app
 
-# Copy the Maven project files
+# Cache dependencies first (improves build speed)
 COPY pom.xml .
-COPY src ./src
+RUN mvn dependency:go-offline -B
 
 # Build the application
-RUN mvn clean package -Pprod
+COPY src ./src
+RUN mvn clean package -DskipTests -P prod -B
 
-# Stage 2: Run the application
-FROM openjdk:17-jdk-slim
+# Verify JAR file exists (debugging)
+RUN ls -la /app/target/
 
+# Runtime Stage (Lightweight JRE)
+FROM eclipse-temurin:21-jre-alpine
 
-# Copy Java application
-COPY --from=build /build/target/*.jar /app/app.jar
+# Security: Non-root user
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring
 
-# Create logs directory
-RUN mkdir -p /opt/logs && chmod 755 /opt/logs
+# Install curl for health checks (optional)
+USER root
+RUN apk add --no-cache curl
+USER spring
 
-# Expose ports for Nginx and Java application
-EXPOSE 10002
+WORKDIR /app
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Copy JAR from build stage
+COPY --from=build --chown=spring:spring /app/target/*.jar email-connector.jar
+
+# JVM Tuning (Production Optimized)
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError"
+
+# Run Eureka
+EXPOSE 8761
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar email-connector.jar --spring.profiles.active=prod"]

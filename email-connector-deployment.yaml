@@ -1,60 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: email-connector
+  name: email-connector-service
 spec:
+  replicas: 3
   selector:
     matchLabels:
-      app: email-connector
-  replicas: 3
+      app: email-connector-service
   template:
     metadata:
       labels:
-        app: email-connector
+        app: email-connector-service
     spec:
-      volumes:
-        - name: log-volume
-          hostPath:
-            path: /var/lib/jenkins/logs/emailConnector
-            type: DirectoryOrCreate
-        - name: email-connector-config-volume
-          configMap:
-            name: email-connector-config
       containers:
-        - name: email-connector
-          image: rsharma0374/email-connector:latest
-          imagePullPolicy: IfNotPresent
+        - name: email-connector-service
+          image: rsharma0374/email-connector-service:latest
           ports:
             - containerPort: 10002
           volumeMounts:
-            - name: log-volume
-              mountPath: /logs
-            - name: email-connector-config-volume
-              mountPath: /opt/configs
+            - name: infisical-secret-volume
+              mountPath: /opt/configs/infisical.properties
+              subPath: infisical.properties
               readOnly: true
-          env:
-            - name: SPRING_APPLICATION_JSON
-              value: '{
-                "server": {
-                  "port": 10002,
-                  "address": "0.0.0.0"
-                },
-                "spring": {
-                  "application": {
-                    "name": "EMAIL-SERVICE"
-                  }
-                },
-                "eureka": {
-                  "client": {
-                    "serviceUrl": {
-                      "defaultZone": "http://eureka-0.eureka.default.svc.cluster.local:8761/eureka"
-                    },
-                    "register-with-eureka": true,
-                    "fetch-registry": true
-                  },
-                  "instance": {
-                    "prefer-ip-address": true,
-                    "instanceId": "${spring.cloud.client.hostname}:${spring.application.name}:${server.port}"
-                  }
-                }
-              }'
+      volumes:
+        - name: infisical-secret-volume
+          secret:
+            secretName: infisical-secret
+            items:
+              - key: infisical.properties
+                path: infisical.properties
