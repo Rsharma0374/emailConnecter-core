@@ -3,11 +3,10 @@ kind: Service
 metadata:
   name: email-connector-service
 spec:
-  type: NodePort
+  type: ClusterIP  # Internal only, no external access
   selector:
     app: email-connector-service
   ports:
     - protocol: TCP
-      port: 10002
-      targetPort: 10002
-      nodePort: 30002
+      port: 10002        # Service port inside the cluster
+      targetPort: 10002  # Pod/container port
