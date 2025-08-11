@@ -5,27 +5,3 @@ server:
 spring:
   application:
     name: EMAIL-SERVICE
-
-#logging:
-#  file:
-#    name: /opt/logs/emailConnector/emailConnector.log
-
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://eureka-0.eureka.default.svc.cluster.local:8761/eureka
-#    register-with-eureka: true
-#    fetch-registry: true
-#  instance:
-#    prefer-ip-address: true
-#    instanceId: ${spring.cloud.client.hostname}:${spring.application.name}:${server.port}
-#
-
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://localhost:8761/eureka/
-#    register-with-eureka: true
-#    fetch-registry: true
-#  instance:
-#    prefer-ip-address: true

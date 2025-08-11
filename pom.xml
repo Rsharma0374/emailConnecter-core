@@ -68,13 +68,6 @@
 			<version>20250107</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-netflix-eureka-client -->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-			<version>4.2.0</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.infisical</groupId>
 			<artifactId>sdk</artifactId>
