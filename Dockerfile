@@ -35,9 +35,6 @@ WORKDIR /app
 # Copy JAR from build stage
 COPY --from=build --chown=spring:spring /app/target/*.jar email-connector.jar
 
-# JVM tuning for containers
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError"
-
 # Application port
 EXPOSE 10002
 
