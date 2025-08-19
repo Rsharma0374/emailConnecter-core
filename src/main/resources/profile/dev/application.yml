@@ -1,6 +1,7 @@
 server:
   port: 10002
-
+  servlet:
+    context-path: /email-connector
 spring:
   application:
     name: EMAIL-SERVICE

@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/email-connector")
 public class EmailController {
     private static final Logger logger = LoggerFactory.getLogger(EmailController.class);
 
