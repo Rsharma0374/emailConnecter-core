@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: EMAIL-SERVICE
+  cache:
+    type: simple
 
 eureka:
   client:

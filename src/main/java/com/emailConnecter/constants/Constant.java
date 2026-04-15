@@ -1,19 +1,17 @@
 package com.emailConnecter.constants;
 
-public class Constant {
+/**
+ * Class containing common constants used across the application.
+ */
+public final class Constant {
 
-    public static final String GSERVICE_HOST = "GSERVICE_HOST";
-    public static final String GSERVICE_PORT = "GSERVICE_PORT";
-    public static final String GSERVICE_USERNAME = "GSERVICE_USERNAME";
-    public static final String GSERVICE_PASSWORD = "GSERVICE_PASSWORD";
-
-    public static final String BREVO_HOST = "BREVO_HOST";
-    public static final String BREVO_PORT = "BREVO_PORT";
-    public static final String BREVO_USERNAME = "BREVO_USERNAME";
-    public static final String BREVO_PASSWORD = "BREVO_PASSWORD";
-    public static final String BREVO_API_KEY = "BREVO_API_KEY";
-
-
-    public static final String FROM = "FROM";
-
+    public static final String AWS_SES_FROM_EMAIL = "AWS_SES_FROM_EMAIL";
+    public static final String AWS_ACCESS_KEY = "AWS_ACCESS_KEY";
+    public static final String AWS_SECRET_KEY = "AWS_SECRET_KEY";
+    public static final String AWS_REGION = "AWS_REGION";
+    public static final String INFISICAL_PROJECT_ID = "guardian-services";
+    public static final String SUCCESS = "Success";
+    public static final String ERROR = "Error";
+    public static final String EMAIL_SENT_SUCCESS_MESSAGE = "Email sent successfully";
+    public static final String EMAIL_SENT_FAILED_MESSAGE = "Failed to send email: ";
 }
