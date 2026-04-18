@@ -3,10 +3,13 @@ package com.emailConnecter.service;
 import com.emailConnecter.constants.Constant;
 import com.emailConnecter.request.EmailRequest;
 import com.emailConnecter.utils.Helper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.*;
 
@@ -43,6 +46,18 @@ public class AwsSesEmailService {
      */
     public String sendEmail(EmailRequest emailRequest) throws Exception {
         logger.info("Attempting to send email to: {}", Helper.maskString(emailRequest.getTo()));
+        
+        // Validate request parameters
+        if (StringUtils.isBlank(emailRequest.getTo())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Recipient 'to' email address is missing or empty.");
+        }
+        if (StringUtils.isBlank(emailRequest.getSubject())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email 'subject' is missing or empty.");
+        }
+        if (StringUtils.isBlank(emailRequest.getMessage())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email 'message' body is missing or empty.");
+        }
+
         try {
             String fromEmail = infisicalService.getSecret(Constant.AWS_SES_FROM_EMAIL);
             Destination destination = Destination.builder()
@@ -76,6 +91,8 @@ public class AwsSesEmailService {
             SendEmailResponse sendEmailResponse = sesClient.sendEmail(request);
             logger.info("Email sent successfully to: {} with message ID: {}", Helper.maskString(emailRequest.getTo()), sendEmailResponse.messageId());
             return sendEmailResponse.messageId();
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             logger.error("Failed to send email to: {}. Error: {}", Helper.maskString(emailRequest.getTo()), e.getMessage(), e);
             throw new Exception("Failed to send email: " + e.getMessage(), e);

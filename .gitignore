@@ -29,6 +29,7 @@ target/emailConnecter-core-0.0.1-SNAPSHOT.jar
 /nbdist/
 /.nb-gradle/
 build/
+graphify-out/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
