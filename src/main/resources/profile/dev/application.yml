@@ -7,7 +7,8 @@ spring:
   cache:
     type: simple
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:152.67.3.253:9094}
+#    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:152.67.3.253:9094}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: email-connector-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
