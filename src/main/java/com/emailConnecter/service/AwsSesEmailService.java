@@ -72,9 +72,13 @@ public class AwsSesEmailService {
                     .data(emailRequest.getMessage())
                     .build();
 
-            Body emailBody = Body.builder()
-                    .text(bodyContent)
-                    .build();
+            Body.Builder emailBodyBuilder = Body.builder();
+            if (isHtml(emailRequest.getMessage())) {
+                emailBodyBuilder.html(bodyContent);
+            } else {
+                emailBodyBuilder.text(bodyContent);
+            }
+            Body emailBody = emailBodyBuilder.build();
 
             Message message = Message.builder()
                     .subject(subjectContent)
@@ -97,5 +101,10 @@ public class AwsSesEmailService {
             logger.error("Failed to send email to: {}. Error: {}", Helper.maskString(emailRequest.getTo()), e.getMessage(), e);
             throw new Exception("Failed to send email: " + e.getMessage(), e);
         }
+    }
+
+    private boolean isHtml(String content) {
+        // A simple check for the presence of HTML tags.
+        return content != null && content.strip().startsWith("<") && content.strip().endsWith(">");
     }
 }

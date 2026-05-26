@@ -3,17 +3,28 @@ server:
 
 spring:
   application:
-    name: EMAIL-SERVICE
+    name: email-service
   cache:
     type: simple
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:152.67.3.253:9094}
+    consumer:
+      group-id: email-connector-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.value.default.type: com.emailConnecter.event.EmailEventPayload
+        spring.json.trusted.packages: "*"
+        spring.json.use.type.headers: false
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
-#      defaultZone: http://service-registry:8761/eureka/
-    register-with-eureka: true
+      defaultZone: ${EUREKA_URL:http://eureka.guardianservices.in:8761/eureka/}
     fetch-registry: true
+    register-with-eureka: true
   instance:
     prefer-ip-address: true
-    hostname: localhost
+    hostname: ${HOSTNAME:localhost}
+    instance-id: ${spring.application.name}:${server.port}
