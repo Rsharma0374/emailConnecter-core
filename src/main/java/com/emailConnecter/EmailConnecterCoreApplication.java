@@ -8,7 +8,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * Main application class for the Email Connecter Core application.
  */
 @SpringBootApplication
-@EnableDiscoveryClient
 public class EmailConnecterCoreApplication {
 
 	/**

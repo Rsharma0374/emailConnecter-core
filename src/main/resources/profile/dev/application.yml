@@ -8,7 +8,7 @@ spring:
   cache:
     type: simple
   kafka:
-#    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:152.67.3.253:9094}
+#    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:140.238.245.110:9094}
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: email-connector-group
@@ -19,14 +19,3 @@ spring:
         spring.json.value.default.type: com.emailConnecter.event.EmailEventPayload
         spring.json.trusted.packages: "*"
         spring.json.use.type.headers: false
-
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
-    fetch-registry: true
-    register-with-eureka: true
-  instance:
-    prefer-ip-address: true
-    hostname: ${HOSTNAME:localhost}
-    instance-id: ${spring.application.name}:${server.port}
