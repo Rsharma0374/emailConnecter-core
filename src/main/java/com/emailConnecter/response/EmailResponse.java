@@ -17,12 +17,12 @@ public class EmailResponse {
     /**
      * The status of the operation (e.g., "Success", "Error").
      */
-    private String status;
+    private EmailResponseStatus status;
     
     /**
      * The HTTP status code associated with the outcome.
      */
-    private int statusCode;
+    private Integer statusCode;
     
     /**
      * A descriptive message regarding the outcome.

@@ -41,28 +41,19 @@ public class AwsSesConfig {
     @Bean
     public SesClient sesClient() {
         logger.info("Initializing SES Client");
-        try {
-            String accessKey = infisicalService.getSecret(Constant.AWS_ACCESS_KEY);
-            String secretKey = infisicalService.getSecret(Constant.AWS_SECRET_KEY);
-            String region = infisicalService.getSecret(Constant.AWS_REGION);
-            requireSecret(Constant.AWS_ACCESS_KEY, accessKey);
-            requireSecret(Constant.AWS_SECRET_KEY, secretKey);
-            requireSecret(Constant.AWS_REGION, region);
+        String accessKey = infisicalService.getSecret(Constant.AWS_ACCESS_KEY);
+        String secretKey = infisicalService.getSecret(Constant.AWS_SECRET_KEY);
+        String region = infisicalService.getSecret(Constant.AWS_REGION);
+        requireSecret(Constant.AWS_ACCESS_KEY, accessKey);
+        requireSecret(Constant.AWS_SECRET_KEY, secretKey);
+        requireSecret(Constant.AWS_REGION, region);
 
-            AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(
-                    accessKey,
-                    secretKey
-            );
-
-            logger.debug("Building SES Client for region: {}", region);
-            return SesClient.builder()
-                    .region(Region.of(region))
-                    .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
-                    .build();
-        } catch (Exception e) {
-            logger.error("Failed to initialize SES Client", e);
-            throw new IllegalStateException("Error initializing SES client from Infisical secrets", e);
-        }
+        AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
+        logger.debug("Building SES Client for region: {}", region);
+        return SesClient.builder()
+                .region(Region.of(region))
+                .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
+                .build();
     }
 
     private void requireSecret(String name, String value) {

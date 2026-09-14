@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.*;
+import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * Service for sending emails using AWS Simple Email Service (SES).
@@ -21,6 +23,7 @@ import software.amazon.awssdk.services.ses.model.*;
 @Service
 public class AwsSesEmailService {
     private static final Logger logger = LoggerFactory.getLogger(AwsSesEmailService.class);
+    private static final Pattern HEADER_INJECTION = Pattern.compile("[\\r\\n]");
 
     private final SesClient sesClient;
     private final InfisicalService infisicalService;
@@ -44,7 +47,10 @@ public class AwsSesEmailService {
      * @return The message ID of the sent email.
      * @throws Exception if an error occurs while sending the email.
      */
-    public String sendEmail(EmailRequest emailRequest) throws Exception {
+    public String sendEmail(EmailRequest emailRequest) {
+        if (emailRequest == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email request is required.");
+        }
         logger.info("Attempting to send email to: {}", Helper.maskString(emailRequest.getTo()));
         
         // Validate request parameters
@@ -57,54 +63,61 @@ public class AwsSesEmailService {
         if (StringUtils.isBlank(emailRequest.getMessage())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email 'message' body is missing or empty.");
         }
+        rejectHeaderInjection("to", emailRequest.getTo());
+        rejectHeaderInjection("subject", emailRequest.getSubject());
+        rejectHeaderInjection("message", emailRequest.getMessage());
 
-        try {
-            String fromEmail = infisicalService.getSecret(Constant.AWS_SES_FROM_EMAIL);
-            Destination destination = Destination.builder()
-                    .toAddresses(emailRequest.getTo())
-                    .build();
+        String fromEmail = infisicalService.getSecret(Constant.AWS_SES_FROM_EMAIL);
+        rejectHeaderInjection("from", fromEmail);
+        Destination destination = Destination.builder()
+                .toAddresses(Arrays.asList(emailRequest.getTo()))
+                .build();
 
-            Content subjectContent = Content.builder()
-                    .data(emailRequest.getSubject())
-                    .build();
+        Content subjectContent = Content.builder()
+                .data(emailRequest.getSubject())
+                .build();
 
-            Content bodyContent = Content.builder()
-                    .data(emailRequest.getMessage())
-                    .build();
+        Content bodyContent = Content.builder()
+                .data(emailRequest.getMessage())
+                .build();
 
-            Body.Builder emailBodyBuilder = Body.builder();
-            if (isHtml(emailRequest.getMessage())) {
-                emailBodyBuilder.html(bodyContent);
-            } else {
-                emailBodyBuilder.text(bodyContent);
-            }
-            Body emailBody = emailBodyBuilder.build();
-
-            Message message = Message.builder()
-                    .subject(subjectContent)
-                    .body(emailBody)
-                    .build();
-
-            SendEmailRequest request = SendEmailRequest.builder()
-                    .source(fromEmail)
-                    .destination(destination)
-                    .message(message)
-                    .build();
-
-            logger.debug("Sending email with request: {}", request);
-            SendEmailResponse sendEmailResponse = sesClient.sendEmail(request);
-            logger.info("Email sent successfully to: {} with message ID: {}", Helper.maskString(emailRequest.getTo()), sendEmailResponse.messageId());
-            return sendEmailResponse.messageId();
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error("Failed to send email to: {}. Error: {}", Helper.maskString(emailRequest.getTo()), e.getMessage(), e);
-            throw new Exception("Failed to send email: " + e.getMessage(), e);
+        Body.Builder emailBodyBuilder = Body.builder();
+        if (isHtml(emailRequest.getMessage())) {
+            emailBodyBuilder.html(bodyContent);
+        } else {
+            emailBodyBuilder.text(bodyContent);
         }
+        Body emailBody = emailBodyBuilder.build();
+
+        Message message = Message.builder()
+                .subject(subjectContent)
+                .body(emailBody)
+                .build();
+
+        SendEmailRequest request = SendEmailRequest.builder()
+                .source(fromEmail)
+                .destination(destination)
+                .message(message)
+                .build();
+
+        logger.debug("Sending email to {} with subject length {} and body length {}",
+                Helper.maskString(emailRequest.getTo()),
+                emailRequest.getSubject().length(),
+                emailRequest.getMessage().length());
+        SendEmailResponse sendEmailResponse = sesClient.sendEmail(request);
+        logger.info("Email sent successfully to: {} with message ID: {}", Helper.maskString(emailRequest.getTo()), sendEmailResponse.messageId());
+        return sendEmailResponse.messageId();
     }
 
     private boolean isHtml(String content) {
         // A simple check for the presence of HTML tags.
         return content != null && content.strip().startsWith("<") && content.strip().endsWith(">");
+    }
+
+    private void rejectHeaderInjection(String field, String value) {
+        if (HEADER_INJECTION.matcher(value).find()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Email " + field + " contains invalid line breaks.");
+        }
     }
 }

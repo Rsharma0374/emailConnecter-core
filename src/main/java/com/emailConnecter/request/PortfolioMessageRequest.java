@@ -1,82 +1,53 @@
 package com.emailConnecter.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represents a message request coming from a portfolio contact form.
  */
+@EqualsAndHashCode
+@Getter
+@Setter
 public class PortfolioMessageRequest {
 
     /**
      * The name of the sender.
      */
+    @NotBlank
+    @Size(max = 200)
     @JsonProperty("Name")
     private String name;
 
     /**
      * The email address provided by the sender.
      */
+    @NotBlank
+    @Email
+    @Size(max = 254)
     @JsonProperty("Email")
-    private String queryEmailId;
+    private String email;
 
     /**
      * The message content sent by the user.
      */
+    @NotBlank
+    @Size(max = 100_000)
     @JsonProperty("Message")
     private String message;
 
-    /**
-     * Retrieves the sender's name.
-     *
-     * @return the name.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Sets the sender's name.
-     *
-     * @param name the name to set.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Retrieves the sender's email address.
-     *
-     * @return the sender's email.
-     */
-    public String getQueryEmailId() {
-        return queryEmailId;
-    }
-
-    /**
-     * Sets the sender's email address.
-     *
-     * @param queryEmailId the email to set.
-     */
-    public void setQueryEmailId(String queryEmailId) {
-        this.queryEmailId = queryEmailId;
-    }
-
-    /**
-     * Retrieves the message content.
-     *
-     * @return the message.
-     */
-    public String getMessage() {
-        return message;
-    }
-
-    /**
-     * Sets the message content.
-     *
-     * @param message the message to set.
-     */
-    public void setMessage(String message) {
-        this.message = message;
+    @Override
+    public String toString() {
+        return "PortfolioMessageRequest{" +
+                "nameLength=" + (name == null ? 0 : name.length()) +
+                ", emailPresent=" + (email != null && !email.isBlank()) +
+                ", messageLength=" + (message == null ? 0 : message.length()) +
+                '}';
     }
 
 }

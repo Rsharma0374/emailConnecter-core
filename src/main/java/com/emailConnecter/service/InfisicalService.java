@@ -2,6 +2,7 @@ package com.emailConnecter.service;
 
 import com.emailConnecter.config.CacheConfig;
 import com.emailConnecter.config.InfisicalConfig;
+import com.emailConnecter.exception.SecretNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -58,7 +59,7 @@ public class InfisicalService {
         });
 
         return cacheConfig.get(secretName)
-                .orElseThrow(() -> new IllegalStateException(
+                .orElseThrow(() -> new SecretNotFoundException(
                         "Required secret '" + secretName + "' was not returned by Infisical"));
     }
 }

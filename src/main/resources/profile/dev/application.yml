@@ -2,6 +2,9 @@ server:
   port: 10002
   servlet:
     context-path: "/email-service"
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
 spring:
   application:
     name: email-service
@@ -9,9 +12,11 @@ spring:
     type: simple
   kafka:
 #    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:140.238.245.110:9094}
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:140.238.245.110:9092}
     consumer:
       group-id: email-connector-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
@@ -19,3 +24,10 @@ spring:
         spring.json.value.default.type: com.emailConnecter.event.EmailEventPayload
         spring.json.trusted.packages: "*"
         spring.json.use.type.headers: false
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    listener:
+      ack-mode: record
+    properties:
+      spring.json.add.type.headers: false

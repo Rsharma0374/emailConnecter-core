@@ -1,28 +1,21 @@
 
 # Step 1: Build the Java Maven application
-FROM maven:3.9.9-eclipse-temurin-17 AS build
-# Set the working directory
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
-# Copy the Maven project files
 COPY pom.xml .
+RUN mvn -B -Pprod dependency:go-offline
 COPY src ./src
 
-# Build the application
-RUN mvn clean package -Pprod
+RUN mvn -B -Pprod package -DskipTests
 
-# Stage 2: Run the application
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:21-jre-jammy
 
+RUN groupadd --system app && useradd --system --gid app --home-dir /app app
+WORKDIR /app
+COPY --from=build /build/target/emailConnecter-core-1.0.0.jar /app/app.jar
 
-# Copy Java application
-COPY --from=build /build/target/*.jar /app/app.jar
-
-# Create logs directory
-RUN mkdir -p /opt/logs && chmod 755 /opt/logs
-
-# Expose ports for Nginx and Java application
 EXPOSE 10002
 
-# Run the application
+USER app
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
