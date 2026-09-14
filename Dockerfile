@@ -11,7 +11,9 @@ RUN mvn -B -Pprod package -DskipTests
 
 FROM eclipse-temurin:21-jre-jammy
 
-RUN groupadd --system app && useradd --system --gid app --home-dir /app app
+RUN groupadd --system app && useradd --system --gid app --home-dir /app app \
+    && mkdir -p /logs \
+    && chown app:app /logs
 WORKDIR /app
 COPY --from=build /build/target/emailConnecter-core-1.0.0.jar /app/app.jar
 

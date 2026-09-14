@@ -2,7 +2,6 @@ package com.emailConnecter.service;
 
 import com.emailConnecter.constants.Constant;
 import com.emailConnecter.request.EmailRequest;
-import com.emailConnecter.utils.Helper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +50,7 @@ public class AwsSesEmailService {
         if (emailRequest == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email request is required.");
         }
-        logger.info("Attempting to send email to: {}", Helper.maskString(emailRequest.getTo()));
+        logger.info("Attempting to send email");
         
         // Validate request parameters
         if (StringUtils.isBlank(emailRequest.getTo())) {
@@ -100,12 +99,11 @@ public class AwsSesEmailService {
                 .message(message)
                 .build();
 
-        logger.debug("Sending email to {} with subject length {} and body length {}",
-                Helper.maskString(emailRequest.getTo()),
+        logger.debug("Sending email with subject length {} and body length {}",
                 emailRequest.getSubject().length(),
                 emailRequest.getMessage().length());
         SendEmailResponse sendEmailResponse = sesClient.sendEmail(request);
-        logger.info("Email sent successfully to: {} with message ID: {}", Helper.maskString(emailRequest.getTo()), sendEmailResponse.messageId());
+        logger.info("Email sent successfully with message ID: {}", sendEmailResponse.messageId());
         return sendEmailResponse.messageId();
     }
 

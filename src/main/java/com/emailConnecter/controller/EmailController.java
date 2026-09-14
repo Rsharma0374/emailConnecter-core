@@ -7,7 +7,6 @@ import com.emailConnecter.request.EmailRequest;
 import com.emailConnecter.response.EmailResponse;
 import com.emailConnecter.response.EmailResponseStatus;
 import com.emailConnecter.service.AwsSesEmailService;
-import com.emailConnecter.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +63,7 @@ public class EmailController {
      */
     @PostMapping("/send-mail")
     public ResponseEntity<EmailResponse> sendEmail(@Valid @RequestBody EmailRequest emailRequest) {
-        logger.info("Received request to send email to: {}", Helper.maskString(emailRequest.getTo()));
+        logger.info("Received email send request");
         try {
             String messageId = awsSesEmailService.sendEmail(emailRequest);
             EmailResponse response = EmailResponse.builder()
@@ -73,12 +72,12 @@ public class EmailController {
                     .message(Constant.EMAIL_SENT_SUCCESS_MESSAGE)
                     .messageId(messageId)
                     .build();
-            logger.info("Successfully sent email to: {} with message ID: {}", Helper.maskString(emailRequest.getTo()), messageId);
+            logger.info("Successfully sent email with message ID: {}", messageId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return errorResponse(HttpStatus.valueOf(e.getStatusCode().value()), e.getReason());
         } catch (SesException e) {
-            logger.error("Failed to send email to: {}. Error: {}", Helper.maskString(emailRequest.getTo()), e.getMessage(), e);
+            logger.error("Failed to send email. Error: {}", e.getMessage(), e);
             HttpStatus status = e.statusCode() >= 400 && e.statusCode() < 500
                     ? HttpStatus.valueOf(e.statusCode())
                     : HttpStatus.BAD_GATEWAY;
@@ -90,7 +89,7 @@ public class EmailController {
             logger.error("Email service secret provider is unavailable", e);
             return errorResponse(HttpStatus.SERVICE_UNAVAILABLE, "Email service is temporarily unavailable.");
         } catch (Exception e) {
-            logger.error("Failed to send email to: {}. Error: {}", Helper.maskString(emailRequest.getTo()), e.getMessage(), e);
+            logger.error("Failed to send email. Error: {}", e.getMessage(), e);
             return errorResponse(HttpStatus.BAD_GATEWAY, "Email delivery is temporarily unavailable.");
         }
     }

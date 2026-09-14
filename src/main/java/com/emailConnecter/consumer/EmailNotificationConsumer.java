@@ -38,8 +38,8 @@ public class EmailNotificationConsumer {
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
-        logger.info("Received email notification event. RequestId: {}, To: {}", 
-                payload.getRequestId(), maskEmail(payload.getRecipientEmail()));
+        logger.info("Received email notification event. RequestId: {}",
+                payload.getRequestId());
         if (!idempotencyStore.claim(payload.getRequestId())) {
             logger.warn("Skipping duplicate email event for RequestId: {}", payload.getRequestId());
             return;
@@ -60,8 +60,4 @@ public class EmailNotificationConsumer {
         }
     }
 
-    private String maskEmail(String email) {
-        int at = email.indexOf('@');
-        return at <= 1 ? "***" : email.charAt(0) + "***" + email.substring(at);
-    }
 }

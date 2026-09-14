@@ -21,6 +21,8 @@ spec:
         - name: email-connector-config-volume
           configMap:
             name: email-connector-config
+        - name: log-volume
+          emptyDir: {}
         - name: tmp
           emptyDir: {}
       containers:
@@ -38,6 +40,8 @@ spec:
             - name: email-connector-config-volume
               mountPath: /opt/configs
               readOnly: true
+            - name: log-volume
+              mountPath: /logs
             - name: tmp
               mountPath: /tmp
           readinessProbe:
