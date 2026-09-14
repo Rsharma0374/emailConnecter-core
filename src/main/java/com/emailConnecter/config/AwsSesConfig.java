@@ -45,6 +45,9 @@ public class AwsSesConfig {
             String accessKey = infisicalService.getSecret(Constant.AWS_ACCESS_KEY);
             String secretKey = infisicalService.getSecret(Constant.AWS_SECRET_KEY);
             String region = infisicalService.getSecret(Constant.AWS_REGION);
+            requireSecret(Constant.AWS_ACCESS_KEY, accessKey);
+            requireSecret(Constant.AWS_SECRET_KEY, secretKey);
+            requireSecret(Constant.AWS_REGION, region);
 
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(
                     accessKey,
@@ -58,7 +61,13 @@ public class AwsSesConfig {
                     .build();
         } catch (Exception e) {
             logger.error("Failed to initialize SES Client", e);
-            throw new RuntimeException("Error initializing SES client", e);
+            throw new IllegalStateException("Error initializing SES client from Infisical secrets", e);
+        }
+    }
+
+    private void requireSecret(String name, String value) {
+        if (value == null || value.isBlank() || "null".equalsIgnoreCase(value.trim())) {
+            throw new IllegalStateException("Required secret is missing or blank: " + name);
         }
     }
 }

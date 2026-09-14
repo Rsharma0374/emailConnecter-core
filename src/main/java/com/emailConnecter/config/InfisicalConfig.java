@@ -7,11 +7,11 @@ import com.infisical.sdk.InfisicalSdk;
 import com.infisical.sdk.config.SdkConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
 import java.util.Properties;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * Configuration class for fetching secrets from Infisical.
@@ -27,55 +27,47 @@ public class InfisicalConfig {
      * Fetches configuration values from Infisical for a given secret name.
      *
      * @param secretName The name of the secret to retrieve.
-     * @return A map containing the configuration values, or null if an error occurs.
-     * @throws Exception if an error occurs during property fetching or Infisical SDK initialization.
+     * @return A map containing the configuration values.
      */
-    public static Map fetchConfig(String secretName) throws Exception {
+    public Map<String, String> fetchConfig(String secretName) {
+        if (secretName == null || secretName.isBlank()) {
+            throw new IllegalArgumentException("Secret name must not be blank");
+        }
         logger.info("Attempting to fetch config for secret: {}", secretName);
         Properties properties = Helper.fetchProperties(INFISICAL_PATH);
 
         try {
-            if (null != properties) {
-                String infisicalUrl = properties.getProperty("url");
-                String infisicalToken = properties.getProperty("token");
-                String env = properties.getProperty("env");
-                
-                logger.debug("Infisical URL: {}, Environment: {}", infisicalUrl, env);
-
-                var sdk = new InfisicalSdk(
-                        new SdkConfig.Builder()
-                                .withSiteUrl(infisicalUrl)
-                                .build()
-                );
-
-                sdk.Auth().SetAccessToken(infisicalToken);
-
-                var secret = sdk.Secrets().GetSecret(
-                        secretName,
-                        Constant.INFISICAL_PROJECT_ID,
-                        env,
-                        "/",
-                        null, // Expand Secret References (boolean, optional)
-                        null, // Include Imports (boolean, optional)
-                        null  // Secret Type (shared/personal, defaults to shared, optional)
-                );
-                
-                if (secret != null) {
-                    logger.debug("Successfully fetched secret: {}", secretName);
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    return objectMapper.readValue(secret.getSecretValue(), Map.class);
-                } else {
-                    logger.warn("Secret '{}' not found or returned null", secretName);
-                }
-
-            } else {
-                 logger.error("Failed to load properties from path: {}", INFISICAL_PATH);
+            if (properties == null) {
+                throw new IllegalStateException("Unable to load Infisical properties from " + INFISICAL_PATH);
             }
+
+            String infisicalUrl = requiredProperty(properties, "url");
+            String infisicalToken = requiredProperty(properties, "token");
+            String env = requiredProperty(properties, "env");
+            logger.debug("Infisical URL: {}, Environment: {}", infisicalUrl, env);
+
+            var sdk = new InfisicalSdk(new SdkConfig.Builder().withSiteUrl(infisicalUrl).build());
+            sdk.Auth().SetAccessToken(infisicalToken);
+            var secret = sdk.Secrets().GetSecret(
+                    secretName, Constant.INFISICAL_PROJECT_ID, env, "/", null, null, null);
+
+            if (secret == null || secret.getSecretValue() == null || secret.getSecretValue().isBlank()) {
+                throw new IllegalStateException("Infisical returned no value for secret: " + secretName);
+            }
+            logger.debug("Successfully fetched secret: {}", secretName);
+            return new ObjectMapper().readValue(
+                    secret.getSecretValue(), new TypeReference<Map<String, String>>() {});
         } catch (Exception e) {
             logger.error("Exception occurred while fetching config for secret: {}", secretName, e);
-            return null;
+            throw new IllegalStateException("Failed to fetch secret from Infisical: " + secretName, e);
         }
+    }
 
-        return null;
+    private String requiredProperty(Properties properties, String name) {
+        String value = properties.getProperty(name);
+        if (value == null || value.isBlank()) {
+            throw new IllegalStateException("Missing Infisical property: " + name);
+        }
+        return value;
     }
 }

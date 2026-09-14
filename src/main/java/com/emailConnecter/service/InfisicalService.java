@@ -4,10 +4,10 @@ import com.emailConnecter.config.CacheConfig;
 import com.emailConnecter.config.InfisicalConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Service class for interacting with Infisical to retrieve secrets.
@@ -17,45 +17,48 @@ import java.util.Map;
 public class InfisicalService {
 
     private static final Logger logger = LoggerFactory.getLogger(InfisicalService.class);
+    public static final String AMAZON_SES = "amazon_ses";
+    private final CacheConfig cacheConfig;
+    private final InfisicalConfig infisicalConfig;
+
+    public InfisicalService(CacheConfig cacheConfig, InfisicalConfig infisicalConfig) {
+        this.cacheConfig = cacheConfig;
+        this.infisicalConfig = infisicalConfig;
+    }
 
     /**
      * Retrieves a secret by its name. Checks the local cache first, 
      * and if not found, queries Infisical.
      *
      * @param secretName the name of the secret to retrieve.
-     * @return the value of the secret, or null if it cannot be found.
+     * @return the nonblank value of the requested secret.
+     * @throws IllegalStateException if Infisical cannot provide the requested secret.
      */
     public String getSecret(String secretName) {
-        logger.debug("Requesting secret: {}", secretName);
-        try {
-            if (CacheConfig.CACHE.containsKey(secretName)) {
-                logger.debug("Secret '{}' found in cache", secretName);
-                return String.valueOf(CacheConfig.CACHE.get(secretName));
-            }
-            
-            logger.info("Secret '{}' not in cache. Fetching from Infisical...", secretName);
-            Map<String, Object> configMap = InfisicalConfig.fetchConfig("amazon_ses");
-
-            if (configMap == null || configMap.isEmpty()) {
-                throw new RuntimeException("ConfigMap is missing or empty.");
-            }
-
-            // ✅ Store ALL entries in cache
-            for (Map.Entry<String, Object> entry : configMap.entrySet()) {
-                String key = entry.getKey();
-                String value = String.valueOf(entry.getValue());
-
-                CacheConfig.CACHE.put(key, value);
-            }
-            
-            logger.debug("Cache populated with {} entries from Infisical", configMap.size());
-
-            // Return requested secret
-            return String.valueOf(CacheConfig.CACHE.get(secretName));
-
-        } catch (Exception e) {
-            logger.error("Failed to fetch secret {} from Infisical", secretName, e);
+        if (secretName == null || secretName.isBlank()) {
+            throw new IllegalArgumentException("Secret name must not be blank");
         }
-        return null;
+        logger.debug("Requesting secret: {}", secretName);
+        Optional<String> cachedSecret = cacheConfig.get(secretName);
+        if (cachedSecret.isPresent()) {
+            logger.debug("Secret '{}' found in cache", secretName);
+            return cachedSecret.get();
+        }
+
+        logger.info("Secret '{}' not in cache. Fetching from Infisical...", secretName);
+        Map<String, String> configMap = infisicalConfig.fetchConfig(AMAZON_SES);
+        if (configMap.isEmpty()) {
+            throw new IllegalStateException("Infisical returned no values for secret: " + secretName);
+        }
+
+        configMap.forEach((key, value) -> {
+            if (key != null && !key.isBlank() && value != null && !value.isBlank()) {
+                cacheConfig.put(key, value);
+            }
+        });
+
+        return cacheConfig.get(secretName)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Required secret '" + secretName + "' was not returned by Infisical"));
     }
 }
